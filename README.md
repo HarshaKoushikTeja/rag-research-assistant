@@ -1,19 +1,24 @@
 # RAG Research Assistant 📚
 
-> An end-to-end Retrieval-Augmented Generation system that answers questions about foundational AI research papers — grounded in the source text, built phase by phase.
+> An end-to-end **local** Retrieval-Augmented Generation system that answers questions about foundational AI research papers — grounded in the source text, with citations, no API keys, built phase by phase.
 
 [![Python](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
 [![Embeddings](https://img.shields.io/badge/embeddings-MiniLM--L6--v2-orange.svg)]()
-[![Status](https://img.shields.io/badge/status-in%20development-yellow.svg)]()
+[![Vector DB](https://img.shields.io/badge/vector%20store-pgvector-336791.svg)]()
+[![LLM](https://img.shields.io/badge/LLM-Gemma%203%20(Ollama)-black.svg)]()
+[![Status](https://img.shields.io/badge/status-Phase%201%20complete-brightgreen.svg)]()
 
 RAG Research Assistant ingests AI research papers, embeds them into a semantic
-search space, and retrieves the most relevant passages for any natural-language
-question. It is built with a **production-oriented mindset**: every layer is
-understood, every design choice is justified, and every planned improvement will
-be **measured** rather than assumed beneficial.
+search space stored in PostgreSQL + pgvector, retrieves the most relevant
+passages for any natural-language question, and uses a local LLM to generate a
+grounded, cited answer. It runs **entirely on-device** — no API keys, no
+per-call cost.
 
-The project is built **phase by phase** — each phase is a self-contained,
-testable milestone. The commit history reflects this.
+It is built with a **production-oriented mindset**: every layer is understood,
+every design choice is justified, and every planned improvement will be
+**measured** rather than assumed beneficial. The project is built **phase by
+phase** — each phase is a self-contained, testable milestone, reflected in the
+commit history.
 
 ---
 
@@ -22,13 +27,13 @@ testable milestone. The commit history reflects this.
 | Feature | Description |
 | --- | --- |
 | **Clean ingestion** | Fetches papers from arXiv's ar5iv HTML and extracts article text with BeautifulSoup |
-| **Lossless cleaning** | Only information-preserving reformatting (citation tidying, blank-line collapse); math and references deliberately untouched |
+| **Lossless cleaning** | Only information-preserving reformatting; math and references deliberately untouched |
 | **Overlapping chunking** | ~1000-char chunks with ~150-char overlap so context isn't lost at boundaries |
 | **Semantic embeddings** | 384-dim vectors via `all-MiniLM-L6-v2`, fully local and zero-cost |
-| **Source-aware retrieval** | Cosine-similarity search returning top-K passages with paper + chunk metadata |
+| **Persistent vector store** | Embeddings stored once in **PostgreSQL + pgvector**; retrieval queries the DB (no re-embedding per run) |
+| **Source-aware retrieval** | Cosine-distance search (`<=>`) returning top-K passages with paper + chunk metadata |
+| **Grounded generation** | Local **Gemma 3 (Ollama)** answers using only retrieved context, with `[Source N]` citations and "I don't know" handling |
 | **Honest evaluation** | Real retrieval failure modes documented in `sample_output.md`, not hidden |
-| **LLM answer generation** *(planned)* | Grounded answers with inline citations and "I don't know" handling |
-| **Persistent vector store** *(planned)* | pgvector for embed-once storage + dynamic document addition |
 | **Reranking + hybrid retrieval** *(planned)* | Cross-encoder reranking and BM25 + dense search, validated against metrics |
 
 ---
@@ -41,26 +46,37 @@ flowchart TD
     B --> C[Text Cleaning - lossless reformatting]
     C --> D[Chunking - fixed-size + overlap, with metadata]
     D --> E[Embedding - all-MiniLM-L6-v2, 384-dim]
-    E --> F[Vector Retrieval - cosine similarity, top-K]
-    F --> G[Ranked Passages + Source Metadata]
-    G --> H[LLM Answer Generation - planned]
-    H --> I[Grounded Answer + Citations - planned]
+    E --> F[(PostgreSQL + pgvector)]
+    G[User Question] --> H[Embed query]
+    H --> F
+    F --> I[Top-K retrieval - cosine distance]
+    I --> J[Grounded prompt construction]
+    J --> K[Local LLM - Gemma 3 via Ollama]
+    K --> L[Cited Answer + Sources]
 ```
 
 ---
 
-## 🔍 Example Query
+## 🔍 Example
 
 > **Question:** *What is multi-head attention?*
 
-The system embeds the query, runs cosine similarity against all chunk
-embeddings, and returns the top-ranked passages with source metadata. For this
-query, all top results came from *Attention Is All You Need*, and the real
-definition of multi-head attention was retrieved at **rank 2**.
+**Generated answer (local Gemma 3, grounded in retrieved chunks):**
 
-The full, unedited retrieval output — including its imperfections and what they
-reveal — is documented in **[`sample_output.md`](sample_output.md)**. Those
-imperfections are surfaced rather than hidden: they define the measurable
+> Multi-Head Attention consists of several attention layers running in parallel [Source 2]. Instead of performing a single attention function with d-dimensional keys, values, and queries, it linearly projects them h times with different, learned linear projections. This allows the model to jointly attend to information from different representation subspaces at different positions [Source 2].
+
+**Sources used:**
+
+| Source | Paper | Chunk | Similarity |
+| --- | --- | --- | --- |
+| 1 | attention | 51 | 0.611 |
+| 2 | attention | 14 | 0.589 |
+| 3 | attention | 50 | 0.586 |
+
+Notably, the actual definition was retrieved at **rank 2**, not rank 1 — yet the
+LLM correctly drew its answer from that source and ignored the two noisier
+chunks. This robustness, and the baseline's retrieval ranking imperfections, are
+documented in **[`sample_output.md`](sample_output.md)** and are the measurable
 targets for the planned reranking and structure-aware chunking improvements.
 
 ---
@@ -84,10 +100,14 @@ targets for the planned reranking and structure-aware chunking improvements.
 rag-research-assistant/
 ├── ingest.py            # fetch, extract, lossless-clean papers → data/
 ├── chunk.py             # chunk cleaned text (importable: get_all_chunks)
-├── embed.py             # embed chunks + cosine-similarity retrieval
-├── requirements.txt     # direct dependencies
+├── embed.py             # in-memory embedding + retrieval (early baseline)
+├── store.py             # embed once + persist all chunks to pgvector
+├── retrieve.py          # query pgvector for top-K similar chunks
+├── generate.py          # build grounded prompt + local LLM answer with citations
+├── requirements.txt
 ├── sample_output.md     # real retrieval output + analysis
 ├── README.md
+├── .env                 # DB credentials (gitignored)
 └── data/                # generated by ingest.py (gitignored)
 ```
 
@@ -98,6 +118,8 @@ rag-research-assistant/
 ### Prerequisites
 
 - Python 3.11
+- PostgreSQL 17 with the [pgvector](https://github.com/pgvector/pgvector) extension
+- [Ollama](https://ollama.com) with a local model pulled (`ollama pull gemma3:4b`)
 - Internet access on first run (fetches papers + downloads the embedding model once)
 
 ### Setup
@@ -110,17 +132,37 @@ venv\Scripts\activate          # Windows  (use: source venv/bin/activate on macO
 pip install -r requirements.txt
 ```
 
-### Build the corpus and run retrieval
+### Configure the database
 
-```bash
-python ingest.py               # fetches + cleans the 4 papers into data/
-python embed.py                # embeds chunks (chunking runs internally) and runs a sample query
+```sql
+CREATE DATABASE rag_assistant;
+\c rag_assistant
+CREATE EXTENSION vector;
+CREATE TABLE chunks (
+    id SERIAL PRIMARY KEY,
+    paper TEXT NOT NULL,
+    chunk_index INTEGER NOT NULL,
+    content TEXT NOT NULL,
+    embedding vector(384)
+);
 ```
 
-### Inspect the chunking step on its own
+Then create a `.env` file (gitignored) with your connection details:
+
+```text
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=rag_assistant
+DB_USER=postgres
+DB_PASSWORD=your_password
+```
+
+### Run the pipeline
 
 ```bash
-python chunk.py                # prints per-paper chunk counts and previews
+python ingest.py               # fetch + clean papers into data/
+python store.py                # embed all chunks once and store in pgvector
+python generate.py             # retrieve + generate a grounded, cited answer
 ```
 
 ---
@@ -139,18 +181,27 @@ python chunk.py                # prints per-paper chunk counts and previews
 - Importable module (`get_all_chunks()`) reused by downstream scripts
 - Current corpus: **4 papers, 497 chunks**
 
-### 3. Embedding + Retrieval — `embed.py`
-- Embeds all chunks and the query with `all-MiniLM-L6-v2` into a shared 384-dim space
-- Ranks chunks by cosine similarity and returns the top-K with source metadata
+### 3. Embedding + Storage — `store.py`
+- Embeds all chunks with `all-MiniLM-L6-v2` into 384-dim vectors
+- Persists chunks + embeddings to PostgreSQL + pgvector (idempotent: truncates and reloads)
+- Credentials loaded from `.env`; parameterized inserts (no SQL injection)
+
+### 4. Retrieval — `retrieve.py`
+- Embeds only the query, then ranks stored chunks by cosine distance (`<=>`) in the database
+- Returns top-K passages with source metadata and a similarity score
+
+### 5. Generation — `generate.py`
+- Builds a grounded prompt: numbered/labeled sources + "use only this context" + "say I don't know" instructions
+- Calls local Gemma 3 via Ollama; returns a cited answer plus the sources used
 
 ---
 
 ## 🧠 Design Decisions
 
-**Local embeddings over an API.** `all-MiniLM-L6-v2` runs locally at zero cost,
-enabling unlimited free re-runs during tuning. It is treated as a defensible
-*baseline*, not a final choice — the embedding model is a planned, measurable
-upgrade once evaluation exists.
+**Local-first throughout.** Local embeddings (`all-MiniLM-L6-v2`) and a local LLM
+(Gemma 3 via Ollama) mean zero cost, full privacy, and unlimited free re-runs
+during tuning. Both are treated as defensible *baselines* — planned, measurable
+upgrades once evaluation exists.
 
 **Fixed-size chunking first.** A simple, robust baseline before introducing
 structure-aware or semantic chunking. Each future strategy will be measured
@@ -159,31 +210,32 @@ against evaluation metrics rather than assumed beneficial.
 **Lossless cleaning only.** Only transformations that provably preserve
 information are applied. Aggressive cleaning such as stripping mathematical
 notation was deliberately rejected: superscripts mark both footnotes *and* real
-exponents, so a blanket strip would destroy content. Cosmetic noise that does
-not affect retrieval was intentionally left in.
+exponents, so a blanket strip would destroy content.
+
+**Postgres + pgvector over a bundled vector DB.** Using real PostgreSQL with the
+pgvector extension is production-realistic and keeps vectors alongside relational
+metadata — enabling future hybrid (structured + semantic) retrieval.
 
 ---
 
 ## 📊 Observations and Findings
 
-Testing the query *"What is multi-head attention?"* against the baseline
-surfaced two real retrieval issues (full output in
-[`sample_output.md`](sample_output.md)):
+Testing *"What is multi-head attention?"* against the baseline surfaced real
+retrieval issues (full output in [`sample_output.md`](sample_output.md)):
 
 - **Ranking errors** — the exact definition did not always rank first. *Planned improvement:* cross-encoder reranking.
 - **Bibliography false positives** — reference sections occasionally scored highly due to overlapping academic vocabulary. *Planned improvement:* structure-aware chunking / section filtering.
-
-These findings provide concrete, measurable targets for the evaluation and improvement phases.
+- **Generation robustness** — despite imperfect ranking, the LLM produced a correct, cited answer from the right source. Whether answers stay strictly faithful to context is exactly what the Phase 2 evaluation will measure.
 
 ---
 
 ## 🗺️ Roadmap
 
-- [x] **Phase 1 — Retrieval Foundation** · corpus selection · ingestion · chunking · embeddings · semantic retrieval
-- [ ] **Phase 2 — Evaluation Framework** · faithfulness · context precision · retrieval recall · answer relevance
+- [x] **Phase 1 — End-to-End Local RAG** · ingestion · chunking · embeddings · pgvector storage · retrieval · grounded cited generation
+- [ ] **Phase 2 — Evaluation Framework** · faithfulness · context precision · answer relevance · retrieval recall
 - [ ] **Phase 3 — Retrieval Improvements** · structure-aware chunking · hybrid retrieval (BM25 + dense) · cross-encoder reranking
-- [ ] **Phase 4 — End-to-End RAG** · LLM answer generation · inline source citations · out-of-scope ("I don't know") detection
-- [ ] **Phase 5 — Production Deployment** · PostgreSQL + pgvector · FastAPI service · Docker · observability
+- [ ] **Phase 4 — Agentic Layer** · tool use · conversational memory · multi-source retrieval
+- [ ] **Phase 5 — Production Deployment** · FastAPI service · Docker · observability · dynamic document addition
 
 > Each Phase 3 improvement will be validated against the Phase 2 evaluation harness — measured, not assumed.
 
@@ -193,9 +245,11 @@ These findings provide concrete, measurable targets for the evaluation and impro
 
 **Language:** Python 3.11
 **Embeddings:** sentence-transformers (`all-MiniLM-L6-v2`)
+**Vector store:** PostgreSQL 17 + pgvector
+**LLM:** Gemma 3 via Ollama (local)
 **Ingestion:** requests, BeautifulSoup
-**Retrieval:** scikit-learn (cosine similarity)
-**Planned:** PostgreSQL + pgvector, FastAPI, Docker, Ragas (evaluation)
+**DB access:** psycopg 3, pgvector (Python)
+**Planned:** Ragas (evaluation), FastAPI, Docker
 
 ---
 
