@@ -1,0 +1,269 @@
+[
+  {
+    "id": 1,
+    "question": "What is multi-head attention?",
+    "expected_papers": [
+      "attention"
+    ],
+    "category": "single_factual",
+    "notes": "Parallel attention layers; linearly project Q,K,V h times with learned projections."
+  },
+  {
+    "id": 2,
+    "question": "What is scaled dot-product attention?",
+    "expected_papers": [
+      "attention"
+    ],
+    "category": "single_factual",
+    "notes": "Dot products of Q and K, scaled by sqrt(d_k), softmax, multiplied by V."
+  },
+  {
+    "id": 3,
+    "question": "Why does the Transformer use positional encoding?",
+    "expected_papers": [
+      "attention"
+    ],
+    "category": "single_factual",
+    "notes": "No recurrence/convolution; position injected via sine/cosine functions."
+  },
+  {
+    "id": 4,
+    "question": "What BLEU score did the base Transformer model achieve on the WMT 2014 English-to-German translation task?",
+    "expected_papers": [
+      "attention"
+    ],
+    "category": "specific_detail",
+    "notes": "28.4 BLEU (verified in corpus). Note paper also reports 41.8 for EN-FR."
+  },
+  {
+    "id": 5,
+    "question": "Why is the dot product divided by the square root of d_k in attention?",
+    "expected_papers": [
+      "attention"
+    ],
+    "category": "reasoning",
+    "notes": "Large d_k pushes dot products into regions of small softmax gradients; scaling counteracts this. Multi-sentence explanation."
+  },
+  {
+    "id": 6,
+    "question": "How many attention heads are used in the base Transformer model?",
+    "expected_papers": [
+      "attention"
+    ],
+    "category": "specific_detail",
+    "notes": "8 heads (verified: h=8)."
+  },
+  {
+    "id": 7,
+    "question": "What embedding dimension does the Transformer base model use?",
+    "expected_papers": [
+      "attention"
+    ],
+    "category": "specific_detail",
+    "notes": "512 (verified: d_model=512). Implementation detail, lives in methods section."
+  },
+  {
+    "id": 8,
+    "question": "What optimizer was used to train the Transformer?",
+    "expected_papers": [
+      "attention"
+    ],
+    "category": "specific_detail",
+    "notes": "Adam (verified). Implementation detail."
+  },
+  {
+    "id": 9,
+    "question": "What learning rate warmup schedule does the Transformer use?",
+    "expected_papers": [
+      "attention"
+    ],
+    "category": "reasoning",
+    "notes": "Warmup then inverse-square-root decay; warmup_steps=4000 (verified). Implementation detail."
+  },
+  {
+    "id": 10,
+    "question": "What is the masked language model objective in BERT?",
+    "expected_papers": [
+      "bert"
+    ],
+    "category": "single_factual",
+    "notes": "Randomly mask tokens, predict from bidirectional context."
+  },
+  {
+    "id": 11,
+    "question": "What does BERT stand for?",
+    "expected_papers": [
+      "bert"
+    ],
+    "category": "specific_detail",
+    "notes": "Bidirectional Encoder Representations from Transformers."
+  },
+  {
+    "id": 12,
+    "question": "What is the next sentence prediction task in BERT pre-training?",
+    "expected_papers": [
+      "bert"
+    ],
+    "category": "single_factual",
+    "notes": "Predict whether sentence B follows sentence A; binary task."
+  },
+  {
+    "id": 13,
+    "question": "What GLUE score did BERT achieve on the GLUE benchmark?",
+    "expected_papers": [
+      "bert"
+    ],
+    "category": "specific_detail",
+    "notes": "80.5% (7.7 point absolute improvement)."
+  },
+  {
+    "id": 14,
+    "question": "What percentage of tokens are selected for masking during BERT pre-training?",
+    "expected_papers": [
+      "bert"
+    ],
+    "category": "specific_detail",
+    "notes": "15% (verified)."
+  },
+  {
+    "id": 15,
+    "question": "What are the three masking strategies used during BERT pre-training?",
+    "expected_papers": [
+      "bert"
+    ],
+    "category": "multi_fact",
+    "notes": "80% [MASK], 10% random token, 10% unchanged (verified). Multi-fact: may span chunks."
+  },
+  {
+    "id": 16,
+    "question": "How many parameters does GPT-3 have?",
+    "expected_papers": [
+      "gpt3"
+    ],
+    "category": "specific_detail",
+    "notes": "175 billion (verified)."
+  },
+  {
+    "id": 17,
+    "question": "What is few-shot learning in the context of GPT-3?",
+    "expected_papers": [
+      "gpt3"
+    ],
+    "category": "single_factual",
+    "notes": "Task from a few in-prompt examples, no gradient updates."
+  },
+  {
+    "id": 18,
+    "question": "What is in-context learning?",
+    "expected_papers": [
+      "gpt3"
+    ],
+    "category": "single_factual",
+    "notes": "Learning a task purely from prompt context at inference, no weight updates."
+  },
+  {
+    "id": 19,
+    "question": "What are zero-shot, one-shot, and few-shot learning as defined in the GPT-3 paper?",
+    "expected_papers": [
+      "gpt3"
+    ],
+    "category": "multi_fact",
+    "notes": "zero-shot=instruction only; one-shot=1 demo; few-shot=as many demos as fit context (verified). Multi-fact."
+  },
+  {
+    "id": 20,
+    "question": "How many different model sizes were trained in the GPT-3 paper?",
+    "expected_papers": [
+      "gpt3"
+    ],
+    "category": "specific_detail",
+    "notes": "8 sizes, from 125M to 175B parameters (verified)."
+  },
+  {
+    "id": 21,
+    "question": "What are the parametric and non-parametric memory components in RAG?",
+    "expected_papers": [
+      "rag"
+    ],
+    "category": "single_factual",
+    "notes": "Parametric=pre-trained seq2seq; non-parametric=dense vector index of Wikipedia (verified)."
+  },
+  {
+    "id": 22,
+    "question": "Which knowledge source is indexed by RAG?",
+    "expected_papers": [
+      "rag"
+    ],
+    "category": "specific_detail",
+    "notes": "Wikipedia (verified). Clean retrieval target."
+  },
+  {
+    "id": 23,
+    "question": "What retriever does the RAG paper use to access its non-parametric memory?",
+    "expected_papers": [
+      "rag"
+    ],
+    "category": "specific_detail",
+    "notes": "Dense Passage Retriever (DPR) (verified)."
+  },
+  {
+    "id": 24,
+    "question": "What is the difference between RAG-Sequence and RAG-Token?",
+    "expected_papers": [
+      "rag"
+    ],
+    "category": "single_factual",
+    "notes": "RAG-Sequence: same passages for whole output; RAG-Token: different passages per token."
+  },
+  {
+    "id": 25,
+    "question": "How does BERT's bidirectional pre-training differ from GPT-3's autoregressive approach?",
+    "expected_papers": [
+      "bert",
+      "gpt3"
+    ],
+    "category": "cross_paper",
+    "notes": "BERT: masked LM, bidirectional. GPT-3: left-to-right autoregressive."
+  },
+  {
+    "id": 26,
+    "question": "Both BERT and the Transformer use attention. How do their architectures differ in how they use it?",
+    "expected_papers": [
+      "bert",
+      "attention"
+    ],
+    "category": "cross_paper",
+    "notes": "Transformer: full encoder-decoder. BERT: encoder-only stack."
+  },
+  {
+    "id": 27,
+    "question": "How does RAG reduce hallucination compared to a pure parametric model like GPT-3?",
+    "expected_papers": [
+      "rag",
+      "gpt3"
+    ],
+    "category": "cross_paper",
+    "notes": "RAG grounds generation in retrieved Wikipedia docs rather than relying solely on weights."
+  },
+  {
+    "id": 28,
+    "question": "What is a diffusion model and how does it generate images?",
+    "expected_papers": [],
+    "category": "out_of_scope",
+    "notes": "Not in corpus. System should say insufficient information."
+  },
+  {
+    "id": 29,
+    "question": "How does reinforcement learning from human feedback (RLHF) work?",
+    "expected_papers": [],
+    "category": "out_of_scope",
+    "notes": "Not in corpus. Should decline."
+  },
+  {
+    "id": 30,
+    "question": "What is the architecture of a convolutional neural network for image classification?",
+    "expected_papers": [],
+    "category": "out_of_scope",
+    "notes": "Not the subject of these NLP papers. Should decline."
+  }
+]
