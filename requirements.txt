@@ -2,3 +2,6 @@ requests
 beautifulsoup4
 sentence-transformers
 scikit-learn
+psycopg[binary]
+pgvector
+python-dotenv
