@@ -32,6 +32,7 @@ def answer(question, top_k=3):
     response = ollama.chat(
         model=MODEL,
         messages=[{"role": "user", "content": prompt}],
+        options={"temperature": 0}
     )
     answer_text = response["message"]["content"]
 

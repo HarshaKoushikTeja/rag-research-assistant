@@ -6,9 +6,9 @@
     "answerable": true,
     "refused": false,
     "cell": "answered",
-    "answer": "Multi-Head Attention consists of several attention layers running in parallel [Source 2]. It linearly projects queries, keys, and values h times with different learned linear projections to d<sub>k</sub>, d<sub>k</sub>, and d<sub>v</sub> dimensions, respectively, and performs the attention function in parallel [Source 2]. This allows the model to jointly attend to information from different representation subspaces at different positions [Source 2].",
+    "answer": "Multi-Head Attention consists of several attention layers running in parallel [Source 2]. Instead of performing a single attention function with d-dimensional keys, values and queries, it linearly projects them h times with different, learned linear projections to d_k and d_v dimensions, respectively. This allows the model to jointly attend to information from different representation subspaces at different positions [Source 2].",
     "faithfulness": 1.0,
-    "faith_reason": "The answer accurately reflects claims made in Source 2, which is entirely supported by the context."
+    "faith_reason": "The answer accurately reflects information presented in Source 2."
   },
   {
     "id": 2,
@@ -19,7 +19,7 @@
     "cell": "answered",
     "answer": "Scaled Dot-Product Attention is computed as softmax of QKT/sqrt(dk)V [Source 1, Source 2]. It involves computing the dot products of the query with all keys, dividing by sqrt(dk), and applying a softmax function to obtain the weights on the values [Source 2]. In practice, the attention function is computed on a set of queries simultaneously [Source 2]. [Source 1]",
     "faithfulness": 1.0,
-    "faith_reason": "The answer accurately reflects the claims made in all three provided context sources."
+    "faith_reason": "The answer accurately reflects the claims made in all three provided sources."
   },
   {
     "id": 3,
@@ -30,18 +30,18 @@
     "cell": "answered",
     "answer": "Since our model contains no recurrence and no convolution, in order for the model to make use of the order of the sequence, we must inject some information about the relative or absolute position of the tokens in the sequence. To this end, we add \"positional encodings\" to the input embeddings at the bottoms of the encoder and decoder stacks. [Source 2]",
     "faithfulness": 1.0,
-    "faith_reason": "The answer is fully supported by Source 2."
+    "faith_reason": "The answer is fully supported by Source 2, which describes the use of positional encodings in the model."
   },
   {
     "id": 4,
     "question": "What BLEU score did the base Transformer model achieve on the WMT 2014 English-to-German translation task?",
     "category": "specific_detail",
     "answerable": true,
-    "refused": false,
-    "cell": "answered",
-    "answer": "The base Transformer model achieved a BLEU score of 28.4 on the WMT 2014 English-to-German translation task [Source 3].",
-    "faithfulness": 0.8,
-    "faith_reason": "The answer accurately states a BLEU score from Source 3, which is supported by the context."
+    "refused": true,
+    "cell": "false_refusal",
+    "answer": "I don't have enough information in the provided context to answer that.",
+    "faithfulness": null,
+    "faith_reason": ""
   },
   {
     "id": 5,
@@ -50,9 +50,9 @@
     "answerable": true,
     "refused": false,
     "cell": "answered",
-    "answer": "The dot products are scaled by 1/sqrt(d_k) to counteract the effect of large dot products growing in magnitude, pushing the softmax function into regions where it has extremely small gradients [Source 1, Source 2].",
+    "answer": "We scale the dot products by 1/sqrt(d_k) [Source 1] to counteract the effect where the dot products grow large in magnitude, pushing the softmax function into regions where it has extremely small gradients [Source 2].",
     "faithfulness": 1.0,
-    "faith_reason": "The answer accurately reflects the scaling factor and its purpose as described in both Source 1 and Source 2."
+    "faith_reason": "The answer accurately reflects the scaling factor and the reason for its use, as stated in both Source 1 and Source 2."
   },
   {
     "id": 6,
@@ -63,7 +63,7 @@
     "cell": "answered",
     "answer": "The largest Transformer we have found in the literature is (L=64, H=512, A=2) with 235M parameters [Source 1].",
     "faithfulness": 1.0,
-    "faith_reason": "The answer accurately states a parameter count from Source 1, which is fully supported by the context."
+    "faith_reason": "The answer accurately states a parameter value from Source 1, fully supported by the context."
   },
   {
     "id": 7,
@@ -72,7 +72,7 @@
     "answerable": true,
     "refused": true,
     "cell": "false_refusal",
-    "answer": "The embedding layers multiply those weights by d<sub>model</sub> / √d<sub>model</sub> [Source 1]. The positional encodings have the same dimension d<sub>model</sub> as the embeddings [Source 1]. BERT BASE contains 110M parameters, and the largest Transformer we have found is (L=64, H=512, A=2) with 235M parameters [Source 2]. I don't have enough information in the provided context to answer that.",
+    "answer": "The embedding layers multiply those weights by d<sub>model</sub> / √d<sub>model</sub> [Source 1]. The positional encodings have the same dimension d<sub>model</sub> as the embeddings [Source 1]. BERT BASE contains 110M parameters, and the largest Transformer we have found in the literature is (L=64, H=512, A=2) with 235M parameters [Source 2]. I don't have enough information in the provided context to answer that.",
     "faithfulness": null,
     "faith_reason": ""
   },
@@ -105,9 +105,9 @@
     "answerable": true,
     "refused": false,
     "cell": "answered",
-    "answer": "The masked language model objective is to reduce the mismatch between pre-training and fine-tuning, as the [MASK] symbol never appears during the fine-tuning stage [Source 1]. The masking procedure involves replacing words with the [MASK] token 80% of the time, a random word 10% of the time, and keeping the word unchanged 10% of the time [Source 2].",
+    "answer": "The masked language model objective is to reduce the mismatch between pre-training and fine-tuning, as the [MASK] symbol never appears during the fine-tuning stage [Source 1]. BERT uses a mixed strategy for masking the target tokens when pre-training with the masked language model (MLM) objective [Source 1]. Specifically, 80% of the time, the word is replaced with the [MASK] token, 10% of the time with a random word, and 10% of the time remains unchanged [Source 2]. [Source 1, Source 2]",
     "faithfulness": 1.0,
-    "faith_reason": "The answer accurately reflects the information presented in all three provided context sources."
+    "faith_reason": "The answer accurately reflects all claims made in the provided context."
   },
   {
     "id": 11,
@@ -127,9 +127,9 @@
     "answerable": true,
     "refused": false,
     "cell": "answered",
-    "answer": "According to [Source 1], “These approaches have been generalized to coarser granularities, such as sentence embeddings… or denoising auto-encoder derived objectives Mikolov et al. (2013) … To train sentence representations, prior work has used objectives to rank candidate next sentences Jernite et al. (2017); Logeswaran and Lee (2018) … or left-to-right generation of next sentence words given a representation of the previous sentence Kiros et al. (2015).”",
-    "faithfulness": 1.0,
-    "faith_reason": "The answer accurately reflects the claims made in Source 1 regarding the objectives and approaches used in training sentence representations."
+    "answer": "According to [Source 1], “These approaches have been generalized to coarser granularities, such as sentence embeddings… or denoising auto-encoder derived objectives Mikolov et al. (2013) as well as objectives to discriminate correct from incorrect words in left and right context.” [Source 2] states, “No NSP : A bidirectional model which is trained using the “masked LM” (MLM) but without the “next sentence prediction” (NSP) task.”",
+    "faithfulness": 0.75,
+    "faith_reason": "The answer accurately reflects claims from the provided context, though it includes some details from Source 2 that aren't directly from Source 1."
   },
   {
     "id": 13,
@@ -140,7 +140,7 @@
     "cell": "answered",
     "answer": "BERT BASE {}_{\\textsc{BASE}} and BERT LARGE {}_{\\textsc{LARGE}} outperform all systems on all tasks by a substantial margin, obtaining 4.5% and 7.0% respective average accuracy improvement over the prior state of the art [Source 1].",
     "faithfulness": 1.0,
-    "faith_reason": "The answer fully supports the claim about BERT BASE and BERT LARGE's performance using information from Source 1."
+    "faith_reason": "The answer accurately reflects the information presented in Source 1 regarding the performance improvements of BERT BASE and BERT LARGE."
   },
   {
     "id": 14,
@@ -160,9 +160,9 @@
     "answerable": true,
     "refused": false,
     "cell": "answered",
-    "answer": "The three masking strategies used during BERT pre-training are Mask, Same, and Rnd [Source 3].",
+    "answer": "The three masking strategies used during BERT pre-training are Mask, Same, and Rnd [Source 1].",
     "faithfulness": 1.0,
-    "faith_reason": "The answer accurately reflects the information provided in Source 3 about the three masking strategies used during BERT pre-training."
+    "faith_reason": "The answer accurately reflects the information presented in Source 1 regarding the three masking strategies used in BERT pre-training."
   },
   {
     "id": 16,
@@ -173,7 +173,7 @@
     "cell": "answered",
     "answer": "GPT-3 has 175.0B parameters [Source 1].",
     "faithfulness": 1.0,
-    "faith_reason": "The answer directly states a parameter value from Source 1, which is explicitly supported by the context."
+    "faith_reason": "The answer directly states a parameter value from Source 1, which is fully supported by the context."
   },
   {
     "id": 17,
@@ -184,7 +184,7 @@
     "cell": "answered",
     "answer": "Few-Shot (FS) is the term we will use in this work to refer to the setting where the model is given a few demonstrations of the task at inference time as conditioning [117].",
     "faithfulness": 1.0,
-    "faith_reason": "The answer is entirely supported by Source 2, which defines Few-Shot (FS) and its usage."
+    "faith_reason": "The answer is entirely supported by Source 2, which defines and explains the use of 'Few-Shot (FS)'."
   },
   {
     "id": 18,
@@ -193,9 +193,9 @@
     "answerable": true,
     "refused": false,
     "cell": "answered",
-    "answer": "In-context learning is described as “the inner loop of this process, which occurs within the forward-pass upon each sequence” [Source 2]. It involves the model absorbing many skills and tasks within its parameters [Source 1].",
+    "answer": "In-context learning is described as “the inner loop of this process, which occurs within the forward-pass upon each sequence” [Source 2]. It involves absorbing many skills and tasks within the parameters of the model [Source 1].",
     "faithfulness": 0.8,
-    "faith_reason": "The answer accurately reflects claims from both Source 1 and Source 2, supporting the concept of in-context learning within the model's parameters."
+    "faith_reason": "The answer accurately reflects claims from both Source 1 and Source 2 regarding the mechanism and purpose of in-context learning."
   },
   {
     "id": 19,
@@ -204,9 +204,9 @@
     "answerable": true,
     "refused": false,
     "cell": "answered",
-    "answer": "Zero-shot learning is the same as one-shot except that [Source 3] no demonstrations are allowed, in addition to a natural language description of the task. One-Shot (1S) is the same as few-shot except that only one demonstration is allowed, in addition to a natural language description of the task [Source 3]. Few-shot learning involves learning based on a broad distribution of tasks [Source 3], and is related to few-shot learning as used in other contexts in ML [Source 3].",
+    "answer": "Zero-shot learning is the same as one-shot except that [Source 3] it has no demonstrations. One-Shot (1S) is the same as few-shot except that [Source 3] only one demonstration is allowed, in addition to a natural language description of the task. Few-shot learning involves learning based on a broad distribution of tasks [Source 3] and then rapidly adapting to a new task. [Source 1]",
     "faithfulness": 0.9,
-    "faith_reason": "The answer accurately reflects the definitions of zero-shot, one-shot, and few-shot learning as presented in Source 3, with full citations."
+    "faith_reason": "The answer accurately reflects the definitions and relationships described in all three provided sources."
   },
   {
     "id": 20,
@@ -215,9 +215,9 @@
     "answerable": true,
     "refused": false,
     "cell": "answered",
-    "answer": "Based on the provided context, the following model sizes were trained: 125M, 350M, 760M, 1.3B, and 2.7B [Source 2].",
+    "answer": "Based on the provided context, the following model sizes were trained: 125M, 350M, 760M, 1.3B, 2.7B, and 13 billion parameters [Source 1, Source 2].",
     "faithfulness": 1.0,
-    "faith_reason": "The answer accurately lists the model sizes presented in Source 2."
+    "faith_reason": "The answer accurately lists the model sizes mentioned in the provided context."
   },
   {
     "id": 21,
@@ -228,7 +228,7 @@
     "cell": "answered",
     "answer": "The RAG models contain 626M trainable parameters from BART-large (406M parameters) and DPR (110M parameters each), along with a non-parametric memory index consisting of 21M 728-dimensional vectors with 15.3B values [Source 1]. The non-parametric memory index does not consist of trainable parameters [Source 1]. The non-parametric component helps to guide the generation, drawing out specific knowledge stored in the parametric memory [Source 2].",
     "faithfulness": 1.0,
-    "faith_reason": "The answer accurately reflects all the claims made in the provided context."
+    "faith_reason": "The answer accurately reflects all claims supported by the provided context."
   },
   {
     "id": 22,
@@ -239,7 +239,7 @@
     "cell": "answered",
     "answer": "RAG uses a Wikipedia dump from December 2016 and a newer index from December 2018 [Source 1].",
     "faithfulness": 1.0,
-    "faith_reason": "The answer accurately reflects the information provided in Source 1 regarding the use of two different Wikipedia dumps and the accuracy rates observed when using them."
+    "faith_reason": "The answer accurately reflects the information provided in Source 1 regarding the use of two Wikipedia dumps for comparison."
   },
   {
     "id": 23,
@@ -248,9 +248,9 @@
     "answerable": true,
     "refused": false,
     "cell": "answered",
-    "answer": "The RAG paper uses a non-parametric memory index consisting of 21M 728 dimensional vectors, consisting of 15.3B values [Source 1].",
+    "answer": "The RAG paper uses a non-parametric memory index consisting of 21M 728 dimensional vectors [Source 1].",
     "faithfulness": 1.0,
-    "faith_reason": "The answer accurately states a fact directly supported by Source 1."
+    "faith_reason": "The answer accurately states the size and structure of the non-parametric memory index as described in Source 1."
   },
   {
     "id": 24,
@@ -259,7 +259,7 @@
     "answerable": true,
     "refused": false,
     "cell": "answered",
-    "answer": "RAG-Sequence’s generations are more diverse than RAG-Token’s, and both are significantly more diverse than BART without needing any diversity-promoting decoding [Source 1]. Token performs better than RAG-Sequence on Jeopardy question generation, with both models outperforming BART on Q-BLEU-1 [Source 2]. [Source 3] notes that RAG-Sequence and RAG-Token are equivalent when considering the target class as a target sequence of length one.",
+    "answer": "RAG-Sequence’s generations are more diverse than RAG-Token’s, and both are significantly more diverse than BART without needing any diversity-promoting decoding [Source 1]. Also, Token performs better than RAG-Sequence on Jeopardy question generation, with both models outperforming BART on Q-BLEU-1 [Source 2]. [Source 3] notes that RAG-Sequence and RAG-Token are equivalent when considering the target class as a target sequence of length one.",
     "faithfulness": 1.0,
     "faith_reason": "All claims are directly supported by the provided context."
   },
@@ -283,7 +283,7 @@
     "cell": "answered",
     "answer": "BERT uses bidirectional self-attention, while the GPT Transformer uses constrained self-attention where every token can only attend to context to its left [Source 1, Source 3].",
     "faithfulness": 1.0,
-    "faith_reason": "The answer accurately reflects claims made in Sources 1 and 3 regarding the difference in attention mechanisms between BERT and GPT."
+    "faith_reason": "The answer accurately reflects claims made in Sources 1 and 3 regarding the differences in self-attention mechanisms between BERT and GPT."
   },
   {
     "id": 27,

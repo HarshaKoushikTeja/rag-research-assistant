@@ -3,6 +3,7 @@ import ollama
 from generate import answer
 
 JUDGE_MODEL = "gemma3:4b"
+TOP_K = 3
 REFUSAL_MARKER = "don't have enough information"
 
 
@@ -45,6 +46,7 @@ Respond with ONLY a JSON object, no other text:
     response = ollama.chat(
         model=JUDGE_MODEL,
         messages=[{"role": "user", "content": judge_prompt}],
+        options={"temperature": 0}
     )
     raw = response["message"]["content"].strip()
     try:
@@ -60,7 +62,7 @@ def evaluate(eval_set):
     rows = []
     for q in eval_set:
         answerable = len(q["expected_papers"]) > 0
-        ans_text, chunks = answer(q["question"])
+        ans_text, chunks = answer(q["question"], top_k=TOP_K)
         refused = is_refusal(ans_text)
 
         # Classify into confusion-matrix cell
